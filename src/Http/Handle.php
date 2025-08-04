@@ -10,8 +10,8 @@ class Handle implements Stringable
 {
     public function __construct(
         protected int    $code = 0,
-        protected string $msg = '',
-        protected string $body = '',
+        protected string $msg = 'success',
+        protected string $body = '[]',
         protected int    $status = 200,
         protected array  $headers = [],
     ) {}

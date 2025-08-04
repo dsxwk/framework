@@ -44,3 +44,22 @@ if (!function_exists('apiResponse')) {
             ->setStatus($httpCode);
     }
 }
+
+if (!function_exists('json')) {
+    /**
+     * json响应返回
+     *
+     * @param     $data
+     * @param int $flag
+     *
+     * @return Response
+     */
+    function json($data, int $flag = JSON_UNESCAPED_UNICODE): Response
+    {
+        $response = new Response();
+
+        return $response->setHeader('Content-Type', 'application/json; charset=utf-8')
+            ->setBody(json_encode($data, $flag))
+            ->setStatus(200);
+    }
+}
