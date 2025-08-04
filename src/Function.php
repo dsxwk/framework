@@ -26,21 +26,23 @@ if (!function_exists('apiResponse')) {
     /**
      * 公共响应返回
      *
-     * @param array  $data
+     * @param mixed  $data
      * @param int    $code
      * @param string $msg
      * @param int    $httpCode
      *
      * @return Response
      */
-    function apiResponse(array $data = [], int $code = 0, string $msg = 'success', int $httpCode = 200): Response
+    function apiResponse(mixed $data = [], int $code = 0, string $msg = 'success', int $httpCode = 200): Response
     {
+        if (is_array($data)) $data = json_encode($data, JSON_UNESCAPED_UNICODE);
+
         $response = new Response();
 
         return $response->setCode($code)
             ->setMsg($msg)
             ->setHeader('Content-Type', 'application/json; charset=utf-8')
-            ->setBody(json_encode($data, JSON_UNESCAPED_UNICODE))
+            ->setBody($data)
             ->setStatus($httpCode);
     }
 }
@@ -49,17 +51,19 @@ if (!function_exists('json')) {
     /**
      * json响应返回
      *
-     * @param     $data
-     * @param int $flag
+     * @param mixed $data
+     * @param int   $flag
      *
      * @return Response
      */
-    function json($data, int $flag = JSON_UNESCAPED_UNICODE): Response
+    function json(mixed $data = [], int $flag = JSON_UNESCAPED_UNICODE): Response
     {
+        if (is_array($data)) $data = json_encode($data, $flag);
+
         $response = new Response();
 
         return $response->setHeader('Content-Type', 'application/json; charset=utf-8')
-            ->setBody(json_encode($data, $flag))
+            ->setBody($data)
             ->setStatus(200);
     }
 }
