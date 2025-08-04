@@ -1,6 +1,6 @@
 {
     "name": "dsxwk/framework",
-    "description": "framework for enum,const,exception,orm ...",
+    "description": "php framework for enum,const,exception,orm ...",
     "autoload": {
         "psr-4": {
             "Dsxwk\\Framework\\": "src/"
