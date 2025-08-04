@@ -43,15 +43,15 @@ class Test
         $constAttributes = ErrCodeConstOther::getAttributes();
         $constDesc       = ErrCodeConstOther::getAttributes(ErrCodeConstOther::INTERNAL_SERVER_ERROR)->desc;
 
-        $constValue1  = ErrCodeConst::INTERNAL_SERVER_ERROR;
-        $constMap   = ErrCodeConst::getMap();
-        $constKeys   = ErrCodeConst::keys();
-        $constValues = ErrCodeConst::values();
-        $constCode1   = ErrCodeConst::INTERNAL_SERVER_ERROR;
-        $classAttributes1  = ErrCodeConst::getClassAttributes(PrefixAttributes::class);
-        $constAttributes1   = ErrCodeConst::getConstAttributes();
-        $constAttributes2   = ErrCodeConst::getConstAttributes(ErrCodeConst::INTERNAL_SERVER_ERROR);
-        $constDesc1   = ErrCodeConst::getAttributes(ErrCodeConst::INTERNAL_SERVER_ERROR)->desc;
+        $constValue1      = ErrCodeConst::INTERNAL_SERVER_ERROR;
+        $constMap         = ErrCodeConst::getMap();
+        $constKeys        = ErrCodeConst::keys();
+        $constValues      = ErrCodeConst::values();
+        $constCode1       = ErrCodeConst::INTERNAL_SERVER_ERROR;
+        $classAttributes1 = ErrCodeConst::getClassAttributes(PrefixAttributes::class);
+        $constAttributes1 = ErrCodeConst::getConstAttributes();
+        $constAttributes2 = ErrCodeConst::getConstAttributes(ErrCodeConst::INTERNAL_SERVER_ERROR);
+        $constDesc1       = ErrCodeConst::getAttributes(ErrCodeConst::INTERNAL_SERVER_ERROR)->desc;
     }
 }
 
