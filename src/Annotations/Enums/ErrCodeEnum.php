@@ -6,12 +6,14 @@ namespace Dsxwk\Framework\Annotations\Enums;
 
 use Dsxwk\Framework\Annotations\Enums\Attributes\DescAttributes;
 use Dsxwk\Framework\Annotations\Enums\Attributes\PrefixAttributes;
+use Dsxwk\Framework\Annotations\Enums\interface\ErrCodeInterface;
 use Dsxwk\Framework\Annotations\Enums\Traits\GetEnumCase;
+use Dsxwk\Framework\Annotations\Enums\Traits\GetErrCode;
 
 #[PrefixAttributes('100', 'API错误码')]
-enum ErrCodeEnum: int
+enum ErrCodeEnum: int implements ErrCodeInterface
 {
-    use GetEnumCase;
+    use GetErrCode;
 
     #[DescAttributes('success', group: '200')]
     case SUCCESS = 0;

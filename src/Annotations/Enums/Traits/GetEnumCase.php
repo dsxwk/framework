@@ -33,6 +33,7 @@ trait GetEnumCase
      * 获取枚举的描述
      *
      * @return string
+     * @throws ReflectionException
      */
     public function desc(): string
     {
@@ -43,6 +44,7 @@ trait GetEnumCase
      * 获取枚举的排序
      *
      * @return int
+     * @throws ReflectionException
      */
     public function sort(): int
     {
@@ -199,6 +201,7 @@ trait GetEnumCase
      * @param $group
      *
      * @return array
+     * @throws ReflectionException
      */
     public static function getGroupValues($group): array
     {
@@ -219,9 +222,8 @@ trait GetEnumCase
         if (!$attributes) {
             return null;
         }
-        $instance = $attributes[0]?->newInstance();
 
-        return $instance;
+        return $attributes[0]?->newInstance();
     }
 
     /**
@@ -282,6 +284,7 @@ trait GetEnumCase
      * 获取错误码集合对象
      *
      * @return stdClass
+     * @throws ReflectionException
      */
     public static function getErrorCodeValuesObject(): stdClass
     {
