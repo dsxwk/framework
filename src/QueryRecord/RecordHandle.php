@@ -50,4 +50,11 @@ class RecordHandle
             'http'  => static::$httpRecord,
         ];
     }
+
+    public static function clear(): void
+    {
+        static::$sqlRecord   = [];
+        static::$redisRecord = [];
+        static::$httpRecord  = [];
+    }
 }
