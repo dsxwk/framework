@@ -1,3 +1,5 @@
+## 常量和枚举
+
 ```PHP
 <?php
 
@@ -55,4 +57,78 @@ class Test
     }
 }
 
+```
+
+## think 验证器
+
+### 基类
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace app\request;
+
+use Dsxwk\Framework\ThinkValidate;
+
+abstract class BaseRequest extends BaseFormRequest
+{
+    /**
+     * 获取当前场景
+     *
+     * @return string
+     */
+    protected function getAction(): string
+    {
+        // 在 webman 中使用, 其他框架自行获取当前的请求的控制器方法
+        return request()->action;
+    }
+}
+```
+
+### 具体使用
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace app\request;
+
+class UserRequest extends BaseRequest
+{
+    /**
+     * 自定义验证场景规则
+     *
+     * @return array
+     */
+    protected function sceneRules(): array
+    {
+        return [
+            'create' => [
+                'username'  => 'require|max:25',
+                'password' => 'require|max:16',
+            ],
+        ];
+    }
+
+    /**
+     * 验证字段描述
+     *
+     * @var array
+     */
+    protected $field   = [
+        'username'  => '用户名',
+        'password'   => '密码',
+    ];
+
+    /**
+     * 验证提示信息
+     *
+     * @var array
+     */
+    protected $message = [
+        'username.require'  => '用户名不能为空',
+        'password.max'      => '密码最多不能超过16个字符',
+    ];
+}
 ```
