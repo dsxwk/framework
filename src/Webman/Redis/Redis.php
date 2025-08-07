@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Dsxwk\Framework\Webman\Redis;
 
 use Dsxwk\Framework\QueryRecord\RecordHandle;
-use support\Redis as SupportRedis;
+use support\Redis AS Predis;
 
-abstract class Predis extends SupportRedis
+class Redis extends Predis
 {
     public static function __callStatic(string $name, array $arguments)
     {
@@ -20,6 +20,7 @@ abstract class Predis extends SupportRedis
             'duration' => $duration . ' ms',
             'result'   => $result
         ];
+
         RecordHandle::setRedisRecord($redisRecord);
 
         return $result;

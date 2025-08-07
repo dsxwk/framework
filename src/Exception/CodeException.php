@@ -33,9 +33,14 @@ class CodeException extends Exception
             $this->code    = $code->getErrCode();
             $this->message = $code->getErrMsg();
         }
-        if (config('app.debug')) $data['debug']['mysql'] = RecordHandle::getSqlRecord();
+        if (config('app.debug')) {
+            $data['debug']['mysql'] = RecordHandle::getSqlRecord();
+            $data['debug']['redis'] = RecordHandle::getRedisRecord();
+        }
         if ($data) $this->data = $data;
         if ($status) $this->status = $status;
+
+        RecordHandle::clear();
 
         parent::__construct($message, $code, $previous);
     }
