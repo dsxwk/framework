@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Dsxwk\Framework\ThinkValidate;
+namespace Dsxwk\Framework\Think\Validate;
 
 use Exception;
 use think\Validate;
