@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Dsxwk\Framework\Webman\Validate;
 
-use Dsxwk\Framework\ThinkValidate\BaseFormRequest;
+use Dsxwk\Framework\Think\Validate\BaseFormRequest;
 
 abstract class BaseRequest extends BaseFormRequest
 {
