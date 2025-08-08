@@ -6,6 +6,7 @@ namespace Dsxwk\Framework\Exception;
 
 use Dsxwk\Framework\Annotations\Enums\interface\ErrCodeInterface;
 use Dsxwk\Framework\QueryRecord\RecordHandle;
+use Dsxwk\Framework\Trace\Trace;
 use Exception;
 use Throwable;
 
@@ -34,8 +35,9 @@ class CodeException extends Exception
             $this->message = $code->getErrMsg();
         }
         if (config('app.debug')) {
-            $data['debug']['mysql'] = RecordHandle::getSqlRecord();
-            $data['debug']['redis'] = RecordHandle::getRedisRecord();
+            $data['debug']['traceId'] = Trace::get();
+            $data['debug']['mysql']   = RecordHandle::getSqlRecord();
+            $data['debug']['redis']   = RecordHandle::getRedisRecord();
         }
         if ($data) $this->data = $data;
         if ($status) $this->status = $status;
