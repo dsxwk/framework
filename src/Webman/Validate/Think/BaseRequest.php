@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Dsxwk\Framework\Webman\Validate;
+namespace Dsxwk\Framework\Webman\Validate\Think;
 
 use Dsxwk\Framework\Think\Validate\BaseFormRequest;
 

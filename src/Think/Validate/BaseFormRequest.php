@@ -9,13 +9,6 @@ use think\Validate;
 
 abstract class BaseFormRequest extends Validate
 {
-    /**
-     * 是否使用原规则验证
-     *
-     * @var bool
-     */
-    protected bool $isRules = false;
-
     protected      $rule    = [];
 
     /**
@@ -61,7 +54,7 @@ abstract class BaseFormRequest extends Validate
     {
         parent::__construct();
 
-        if (!$this->isRules) $this->setSceneRules();
+        $this->setSceneRules();
     }
 
     /**
@@ -72,8 +65,8 @@ abstract class BaseFormRequest extends Validate
      */
     private function setSceneRules(): void
     {
-        $action = $this->getAction();
-        if (empty($action)) throw new Exception('请设置getAction方法');
-        $this->rule($this->sceneRules()[$action] ?? []);
+        if (empty($this->getAction())) throw new Exception('请设置getAction方法');
+
+        $this->rule($this->sceneRules()[$this->getAction()] ?? []);
     }
 }

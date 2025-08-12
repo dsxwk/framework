@@ -21,7 +21,10 @@
         "webman/redis": "^2.1",
         "illuminate/database": "^12.21",
         "illuminate/events": "^12.21",
-        "ramsey/uuid": "^4.9"
+        "ramsey/uuid": "^4.9",
+        "illuminate/validation": "^12.21",
+        "symfony/console": "^7.3",
+        "webman/console": "^2.1"
     },
     "require-dev": {
         "phpunit/phpunit": "^10.5"
