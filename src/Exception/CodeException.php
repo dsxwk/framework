@@ -38,11 +38,10 @@ class CodeException extends Exception
             $data['debug']['traceId'] = Trace::get();
             $data['debug']['mysql']   = RecordHandle::getSqlRecord();
             $data['debug']['redis']   = RecordHandle::getRedisRecord();
+            RecordHandle::clear();
         }
         if ($data) $this->data = $data;
         if ($status) $this->status = $status;
-
-        RecordHandle::clear();
 
         parent::__construct($message, $code, $previous);
     }
