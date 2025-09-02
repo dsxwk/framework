@@ -4,10 +4,23 @@ declare(strict_types=1);
 
 namespace Dsxwk\Framework\Laravel\Model;
 
+use Dsxwk\FrameHelpers\Laravel\Model\Trait\ModelHelper;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 abstract class BaseModel extends Model
 {
+    use ModelHelper;
+
+    protected $guarded = [];
+
+    /**
+     * 是否使用驼峰命名
+     *
+     * @var bool
+     */
+    public static bool $isCamel = true;
+
     /**
      * 重定义主键，默认是id
      *
@@ -42,4 +55,38 @@ abstract class BaseModel extends Model
      * @var string
      */
     const DELETED_AT = 'deleted_at';
+
+    public function getFillable(): array
+    {
+        if ($this->isCamel()) {
+            $fillable = [];
+            foreach (parent::getFillable() as $key) {
+                $fillable[] = Str::camel($key);
+            }
+
+            return $fillable;
+        } else {
+            return $this->fillable;
+        }
+    }
+
+    public function toArray(): array
+    {
+        if ($this->isCamel()) {
+            $result = [];
+
+            foreach (parent::toArray() as $key => $value) {
+                $newKey = is_string($key) ? Str::camel($key) : $key;
+                if (is_array($value)) {
+                    $result[$newKey] = convertKeysToCamel($value);
+                } else {
+                    $result[$newKey] = $value;
+                }
+            }
+
+            return $result;
+        } else {
+            return parent::toArray();
+        }
+    }
 }
