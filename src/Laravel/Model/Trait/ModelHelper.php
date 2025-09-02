@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Dsxwk\FrameHelpers\Laravel\Model\Trait;
+namespace Dsxwk\Framework\Laravel\Model\Trait;
 
-use Dsxwk\FrameHelpers\Laravel\Orm\QueryBuilder;
+use Dsxwk\Framework\Laravel\Orm\QueryBuilder;
 
 trait ModelHelper
 {

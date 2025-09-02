@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Dsxwk\FrameHelpers\Laravel\Orm;
+namespace Dsxwk\Framework\Laravel\Orm;
 
 use Illuminate\Database\Eloquent\Builder;
 
