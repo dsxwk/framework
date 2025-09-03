@@ -69,4 +69,17 @@ abstract class BaseFormRequest extends Validate
 
         $this->rule($this->sceneRules()[$this->getAction()] ?? []);
     }
+
+    /**
+     * 获取错误信息
+     * @param bool  $withKey 是否包含字段信息
+     * @return array|string
+     */
+    public function getError(bool $withKey = false): array|string
+    {
+        if ($withKey) {
+            return $this->error;
+        }
+        return empty($this->error) ? '' : array_values($this->error)[0];
+    }
 }
