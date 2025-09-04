@@ -25,6 +25,7 @@ class MakeModelCommand extends BaseCommand
         $this->addArgument('name', InputArgument::REQUIRED, 'Model name');
         $this->addArgument('type', InputArgument::OPTIONAL, 'Type');
         $this->addOption('connection', 'c', InputOption::VALUE_OPTIONAL, 'Select database connection. ');
+        $this->addOption('camel', 'l', InputOption::VALUE_NONE, 'Camel case');
     }
 
     /**
@@ -39,6 +40,7 @@ class MakeModelCommand extends BaseCommand
         $name       = Util::nameToClass($name);
         $type       = $input->getArgument('type');
         $connection = $input->getOption('connection');
+        $camel      = $input->getOption('camel');
         $output->writeln('Make model ' . $name . 'Model');
         if (!($pos = strrpos($name, '/'))) {
             $name      = ucfirst($name);
@@ -90,9 +92,9 @@ class MakeModelCommand extends BaseCommand
         }
 
         if ($type == 'tp') {
-            $this->createTpModel($name, $namespace, $file, $connection);
+            $this->createTpModel($name, $namespace, $file, $connection, $camel);
         } else {
-            $this->createModel($name, $namespace, $file, $connection);
+            $this->createModel($name, $namespace, $file, $connection, $camel);
         }
 
         return self::SUCCESS;
@@ -103,10 +105,11 @@ class MakeModelCommand extends BaseCommand
      * @param             $namespace
      * @param             $file
      * @param string|null $connection
+     * @param bool        $camel
      *
      * @return void
      */
-    protected function createModel($class, $namespace, $file, string $connection = null): void
+    protected function createModel($class, $namespace, $file, string $connection = null, bool $camel = false): void
     {
         $path = pathinfo($file, PATHINFO_DIRNAME);
         if (!is_dir($path)) {
@@ -192,6 +195,9 @@ class MakeModelCommand extends BaseCommand
                     if ($item->column_name === 'updated_at') {
                         $hasUpdatedAt = true;
                     }
+                    if ($camel) {
+                        $item->column_name = lcfirst(Util::toCamelCase($item->column_name));
+                    }
                     $properties .= " * @property $type \${$item->column_name} " . ($item->column_comment ?? '') . "\n";
                 }
 
@@ -220,6 +226,9 @@ class MakeModelCommand extends BaseCommand
                     }
                     if ($item->COLUMN_NAME === 'updated_at') {
                         $hasUpdatedAt = true;
+                    }
+                    if ($camel) {
+                        $item->COLUMN_NAME = lcfirst(Util::toCamelCase($item->COLUMN_NAME));
                     }
                     $properties .= " * @property $type \${$item->COLUMN_NAME} {$item->COLUMN_COMMENT}\n";
                 }
@@ -262,10 +271,11 @@ EOF;
      * @param             $namespace
      * @param             $file
      * @param string|null $connection
+     * @param bool        $camel
      *
      * @return void
      */
-    protected function createTpModel($class, $namespace, $file, string $connection = null): void
+    protected function createTpModel($class, $namespace, $file, string $connection = null, bool $camel = false): void
     {
         $path = pathinfo($file, PATHINFO_DIRNAME);
         if (!is_dir($path)) {
@@ -347,6 +357,9 @@ EOF;
                         $item['column_comment'] = ($item['column_comment'] ? $item['column_comment'] . ' ' : '') . "(主键)";
                     }
                     $type       = $this->getType($item['data_type']);
+                    if ($camel) {
+                        $item['column_name'] = lcfirst(Util::toCamelCase($item['column_name']));
+                    }
                     $properties .= " * @property $type \${$item['column_name']} " . ($item['column_comment'] ?? '') . "\n";
                 }
             } else {
@@ -369,6 +382,9 @@ EOF;
                         $item['COLUMN_COMMENT'] .= " (主键)";
                     }
                     $type       = $this->getType($item['DATA_TYPE']);
+                    if ($camel) {
+                        $item['COLUMN_NAME'] = lcfirst(Util::toCamelCase($item['COLUMN_NAME']));
+                    }
                     $properties .= " * @property $type \${$item['COLUMN_NAME']} {$item['COLUMN_COMMENT']}\n";
                 }
             }
