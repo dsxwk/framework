@@ -94,13 +94,10 @@ abstract class BaseFormRequest extends Validate
      */
     public function checked(array $data, array | string $rules = []): array
     {
+        $results  = [];
         $checkRes = $this->check($data, $rules);
 
-        if (!$checkRes) {
-            throw new ValidateException(array_values($this->error)[0]);
-        }
-
-        $results      = [];
+        if (!$checkRes) return $results;
         $missingValue = Str::random(10);
 
         foreach (array_keys($this->getRules()) as $key) {
