@@ -7,6 +7,7 @@ namespace Dsxwk\Framework\Webman\Console\Make;
 use Dsxwk\Framework\Webman\Console\BaseCommand;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
@@ -21,6 +22,7 @@ class MakeParamCommand extends BaseCommand
     protected function configure(): void
     {
         $this->addArgument('name', InputArgument::REQUIRED, 'Param name');
+        $this->addOption('camel', 'c', InputOption::VALUE_NONE, 'Camel case');
     }
 
     /**
@@ -32,6 +34,7 @@ class MakeParamCommand extends BaseCommand
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $name = $input->getArgument('name');
+        $camel = $input->getOption('camel');
         $output->writeln("Make param $name");
         $suffix = config('app.param_suffix', '');
 
@@ -80,6 +83,10 @@ class MakeParamCommand extends BaseCommand
         ) as $item) {
             if ($item->COLUMN_KEY !== 'PRI') {
                 $type       = $this->getType($item->DATA_TYPE) === 'integer' ? 'int' : $this->getType($item->DATA_TYPE);
+                // 是否转换成驼峰参数
+                if ($camel) {
+                    $item->COLUMN_NAME = lcfirst(Util::toCamelCase($item->COLUMN_NAME));
+                }
                 $properties .= "{$format}/**\n{$format} * {$item->COLUMN_COMMENT}\n{$format} * \n{$format} * @var {$type}\n{$format} */\n{$format}public {$type} \${$item->COLUMN_NAME};\n\n";
             }
         }
