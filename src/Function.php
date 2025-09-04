@@ -50,3 +50,38 @@ if (!function_exists('convertKeysToSnake')) {
         return $result;
     }
 }
+
+if (!function_exists('toCamelCase')) {
+    /**
+     * 将字符串转换为驼峰命名
+     *
+     * @param string $str
+     * @param bool   $ucfirst
+     *
+     * @return string
+     */
+    function toCamelCase(string $str, bool $ucfirst = false): string
+    {
+        $str = strtolower($str);
+        $str = preg_replace_callback('/_([a-z])/', function ($matches) {
+            return strtoupper($matches[1]);
+        }, $str);
+        return $ucfirst ? ucfirst($str) : $str;
+    }
+}
+
+if (!function_exists('toSnakeCase')) {
+    /**
+     * 将字符串转换为下划线命名
+     *
+     * @param string $str
+     *
+     * @return string
+     */
+    function toSnakeCase(string $str): string
+    {
+        $str = preg_replace('/([A-Z])/', '_$1', $str);
+        $str = strtolower($str);
+        return ltrim($str, '_');
+    }
+}

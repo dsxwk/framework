@@ -85,7 +85,7 @@ class MakeParamCommand extends BaseCommand
                 $type       = $this->getType($item->DATA_TYPE) === 'integer' ? 'int' : $this->getType($item->DATA_TYPE);
                 // 是否转换成驼峰参数
                 if ($camel) {
-                    $item->COLUMN_NAME = lcfirst(Util::toCamelCase($item->COLUMN_NAME));
+                    $item->COLUMN_NAME = lcfirst(toCamelCase($item->COLUMN_NAME));
                 }
                 $properties .= "{$format}/**\n{$format} * {$item->COLUMN_COMMENT}\n{$format} * \n{$format} * @var {$type}\n{$format} */\n{$format}public {$type} \${$item->COLUMN_NAME};\n\n";
             }

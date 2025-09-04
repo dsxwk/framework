@@ -196,7 +196,7 @@ class MakeModelCommand extends BaseCommand
                         $hasUpdatedAt = true;
                     }
                     if ($camel) {
-                        $item->column_name = lcfirst(Util::toCamelCase($item->column_name));
+                        $item->column_name = lcfirst(toCamelCase($item->column_name));
                     }
                     $properties .= " * @property $type \${$item->column_name} " . ($item->column_comment ?? '') . "\n";
                 }
@@ -228,7 +228,7 @@ class MakeModelCommand extends BaseCommand
                         $hasUpdatedAt = true;
                     }
                     if ($camel) {
-                        $item->COLUMN_NAME = lcfirst(Util::toCamelCase($item->COLUMN_NAME));
+                        $item->COLUMN_NAME = lcfirst(toCamelCase($item->COLUMN_NAME));
                     }
                     $properties .= " * @property $type \${$item->COLUMN_NAME} {$item->COLUMN_COMMENT}\n";
                 }
@@ -358,7 +358,7 @@ EOF;
                     }
                     $type       = $this->getType($item['data_type']);
                     if ($camel) {
-                        $item['column_name'] = lcfirst(Util::toCamelCase($item['column_name']));
+                        $item['column_name'] = lcfirst(toCamelCase($item['column_name']));
                     }
                     $properties .= " * @property $type \${$item['column_name']} " . ($item['column_comment'] ?? '') . "\n";
                 }
@@ -383,7 +383,7 @@ EOF;
                     }
                     $type       = $this->getType($item['DATA_TYPE']);
                     if ($camel) {
-                        $item['COLUMN_NAME'] = lcfirst(Util::toCamelCase($item['COLUMN_NAME']));
+                        $item['COLUMN_NAME'] = lcfirst(toCamelCase($item['COLUMN_NAME']));
                     }
                     $properties .= " * @property $type \${$item['COLUMN_NAME']} {$item['COLUMN_COMMENT']}\n";
                 }
