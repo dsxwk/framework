@@ -9,6 +9,7 @@ use Illuminate\Events\Dispatcher;
 use Illuminate\Container\Container;
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Database\Capsule\Manager as Capsule;
+use DateTime;
 
 class Db
 {
@@ -25,6 +26,7 @@ class Db
         $capsule->setAsGlobal();
         $capsule->bootEloquent();
 
+        // 监听 SQL 执行事件
         $capsule->getEventDispatcher()->listen(
             QueryExecuted::class,
             function (QueryExecuted $query) {
@@ -32,10 +34,58 @@ class Db
                 $bindings = $query->bindings;
                 $time     = $query->time . ' ms';
 
-                $fullSql   = vsprintf(str_replace("?", "'%s'", $sql), $bindings);
-                $sqlRecord = ['sql' => $fullSql, 'time' => $time];
+                // 先格式化绑定值
+                $bindings = array_map([self::class, 'formatBinding'], $bindings);
+
+                // 只替换 WHERE / IN 部分的问号
+                $sql = preg_replace_callback(
+                    '/\bWHERE\b(.*)$/is',
+                    function ($matches) use ($bindings) {
+                        $wherePart = $matches[1];
+
+                        // 替换 % -> %%
+                        $wherePart = str_replace('%', '%%', $wherePart);
+
+                        // 顺序替换 ? -> %s
+                        foreach ($bindings as $binding) {
+                            if (str_contains($wherePart, '?')) {
+                                $wherePart = preg_replace('/\?/', $binding, $wherePart, 1);
+                            }
+                        }
+
+                        return 'WHERE' . $wherePart;
+                    },
+                    $sql
+                );
+
+                $sqlRecord = [
+                    'sql'  => $sql,
+                    'time' => $time
+                ];
                 RecordHandle::setSqlRecord($sqlRecord);
             }
         );
+    }
+
+    /**
+     * 格式化绑定值
+     *
+     * @param mixed $binding
+     *
+     * @return string
+     */
+    private static function formatBinding(mixed $binding): string
+    {
+        if ($binding instanceof DateTime) {
+            return "'" . $binding->format('Y-m-d H:i:s') . "'";
+        }
+        if (is_string($binding)) {
+            return "'" . addslashes($binding) . "'";
+        }
+        if (is_null($binding)) {
+            return 'NULL';
+        }
+
+        return (string)$binding;
     }
 }

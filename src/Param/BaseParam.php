@@ -4,42 +4,109 @@ declare(strict_types=1);
 
 namespace Dsxwk\Framework\Param;
 
-abstract class BaseParam
-{
-    /**
-     * 构造函数
-     *
-     * @param array $data
-     */
-    public function __construct(array $data = [])
+if (PHP_VERSION_ID >= 80200) {
+    #[\AllowDynamicProperties]
+    abstract class BaseParam
     {
-        foreach ($data as $key => $value) {
-            if (isset($value) && property_exists($this, $key)) {
-                $this->{$key} = $value;
+        /**
+         * 构造函数
+         *
+         * @param array $data
+         */
+        public function __construct(array $data = [])
+        {
+            foreach ($data as $key => $value) {
+                if (isset($value) && property_exists($this, $key)) {
+                    $this->{$key} = $value;
+                }
             }
         }
-    }
 
-    /**
-     * @param string $name
-     * @param array  $arguments
-     *
-     * @return void
-     */
-    public function __call(string $name, array $arguments)
-    {
-        if (property_exists($this, $name)) {
-            return $this->{$name};
+        /**
+         * @param string $name
+         * @param array  $arguments
+         *
+         * @return void
+         */
+        public function __call(string $name, array $arguments)
+        {
+            if (property_exists($this, $name)) {
+                return $this->{$name};
+            }
+        }
+
+        public function __toString()
+        {
+            return json_encode($this->toArray(), JSON_UNESCAPED_UNICODE);
+        }
+
+        public function __set(string $name, $value)
+        {
+            $this->{$name} = $value;
+        }
+
+        public function toArray(bool $isCamel = false): array
+        {
+            $data = get_object_vars($this);
+            if ($isCamel) {
+                $data = convertKeysToCamel($data);
+            } else {
+                $data = convertKeysToSnake($data);
+            }
+
+            return $data;
         }
     }
-
-    public function __toString()
+} else {
+    abstract class BaseParam
     {
-        return json_encode($this->toArray(), JSON_UNESCAPED_UNICODE);
-    }
+        /**
+         * 构造函数
+         *
+         * @param array $data
+         */
+        public function __construct(array $data = [])
+        {
+            foreach ($data as $key => $value) {
+                if (isset($value) && property_exists($this, $key)) {
+                    $this->{$key} = $value;
+                }
+            }
+        }
 
-    public function toArray(): array
-    {
-        return get_object_vars($this);
+        /**
+         * @param string $name
+         * @param array  $arguments
+         *
+         * @return void
+         */
+        public function __call(string $name, array $arguments)
+        {
+            if (property_exists($this, $name)) {
+                return $this->{$name};
+            }
+        }
+
+        public function __toString()
+        {
+            return json_encode($this->toArray(), JSON_UNESCAPED_UNICODE);
+        }
+
+        public function __set(string $name, $value)
+        {
+            $this->{$name} = $value;
+        }
+
+        public function toArray(bool $isCamel = false): array
+        {
+            $data = get_object_vars($this);
+            if ($isCamel) {
+                $data = convertKeysToCamel($data);
+            } else {
+                $data = convertKeysToSnake($data);
+            }
+
+            return $data;
+        }
     }
 }
