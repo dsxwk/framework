@@ -29,7 +29,7 @@ class QueryBuilder extends Builder
      *
      * @return array
      */
-    public function pageData(array $columns = []): array
+    public function pageData(array $columns = ['*']): array
     {
         $page     = (int)request()->input('page', 1);
         $pageSize = (int)request()->input('pageSize', 10);
