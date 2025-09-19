@@ -42,35 +42,33 @@ class MakeModelCommand extends BaseCommand
         $connection = $input->getOption('connection');
         $camel      = $input->getOption('camel');
         $output->writeln('Make model ' . $name . 'Model');
-        if (!($pos = strrpos($name, '/'))) {
-            $name      = ucfirst($name);
-            $model_str = Util::guessPath(app_path(), 'model') ?: 'model';
-            $file      = app_path() . DIRECTORY_SEPARATOR . $model_str . DIRECTORY_SEPARATOR . $name . 'Model.php';
-            $namespace = $model_str === 'Model' ? 'App\Model' : 'app\model';
-        } else {
-            $name_str = substr($name, 0, $pos);
-            if ($real_name_str = Util::guessPath(app_path(), $name_str)) {
-                $name_str = $real_name_str;
-            } else if ($real_section_name = Util::guessPath(app_path(), strstr($name_str, '/', true))) {
-                $upper = strtolower($real_section_name[0]) !== $real_section_name[0];
-            } else if ($real_base_controller = Util::guessPath(app_path(), 'controller')) {
-                $upper = strtolower($real_base_controller[0]) !== $real_base_controller[0];
+
+        $name      = str_replace('\\', '/', $name);
+        $model_str = Util::guessPath(app_path(), 'model');
+
+        $items = explode('/', $name);
+        $name  = '';
+        $end   = end($items);
+        $path  = '';
+        foreach ($items as $item) {
+            if ($item === $end) {
+                $item = ucfirst($item);
+            } else {
+                $path = $item . '\\';
             }
-            $upper = $upper ?? strtolower($name_str[0]) !== $name_str[0];
-            if ($upper && !$real_name_str) {
-                $name_str = preg_replace_callback(
-                    '/\/([a-z])/',
-                    function ($matches) {
-                        return '/' . strtoupper($matches[1]);
-                    },
-                    ucfirst($name_str)
-                );
-            }
-            $path      = "$name_str/" . ($upper ? 'Model' : 'model');
-            $name      = ucfirst(substr($name, $pos + 1));
-            $file      = app_path() . DIRECTORY_SEPARATOR . $path . DIRECTORY_SEPARATOR . $name . 'Model.php';
-            $namespace = str_replace('/', '\\', ($upper ? 'App/' : 'app/') . $path);
+            $name .= $item . '/';
         }
+        $name = rtrim($name, '/');
+        $path = rtrim($path, '\\');
+
+        $file  = app_path() . DIRECTORY_SEPARATOR . $model_str . DIRECTORY_SEPARATOR . $name . 'Model.php';
+        $upper = $model_str === 'Model';
+        if (empty($path)) {
+            $namespace = $upper ? 'App\Model' : 'app\model';
+        } else {
+            $namespace = $upper ? 'App\Model' . '\\' . $path : 'app\model' . '\\' . $path;
+        }
+
         if (!$type) {
             $database = config('database');
             if (isset($database['default']) && strpos($database['default'], 'plugin.') === 0) {
@@ -92,9 +90,9 @@ class MakeModelCommand extends BaseCommand
         }
 
         if ($type == 'tp') {
-            $this->createTpModel($name, $namespace, $file, $connection, $camel);
+            $this->createTpModel(ucfirst($end), $namespace, $file, $connection, $camel);
         } else {
-            $this->createModel($name, $namespace, $file, $connection, $camel);
+            $this->createModel(ucfirst($end), $namespace, $file, $connection, $camel);
         }
 
         return self::SUCCESS;
@@ -236,9 +234,9 @@ class MakeModelCommand extends BaseCommand
         } catch (\Throwable $e) {
             echo $e->getMessage() . PHP_EOL;
         }
-        $properties    = rtrim($properties) ?: ' *';
-        $timestamps    = $hasCreatedAt && $hasUpdatedAt ? 'true' : 'false';
-        $class         = $class . 'Model';
+        $properties   = rtrim($properties) ?: ' *';
+        $timestamps   = $hasCreatedAt && $hasUpdatedAt ? 'true' : 'false';
+        $class        = $class . 'Model';
         $modelContent = <<<EOF
 <?php
 
@@ -356,7 +354,7 @@ EOF;
                         $pk                     = $item['column_name'];
                         $item['column_comment'] = ($item['column_comment'] ? $item['column_comment'] . ' ' : '') . "(主键)";
                     }
-                    $type       = $this->getType($item['data_type']);
+                    $type = $this->getType($item['data_type']);
                     if ($camel) {
                         $item['column_name'] = lcfirst(toCamelCase($item['column_name']));
                     }
@@ -381,7 +379,7 @@ EOF;
                         $pk                     = $item['COLUMN_NAME'];
                         $item['COLUMN_COMMENT'] .= " (主键)";
                     }
-                    $type       = $this->getType($item['DATA_TYPE']);
+                    $type = $this->getType($item['DATA_TYPE']);
                     if ($camel) {
                         $item['COLUMN_NAME'] = lcfirst(toCamelCase($item['COLUMN_NAME']));
                     }
@@ -393,7 +391,7 @@ EOF;
         }
         $properties     = rtrim($properties) ?: ' *';
         $modelNamespace = $is_thinkorm_v2 ? 'support\think\Model' : 'think\Model';
-        $modelContent  = <<<EOF
+        $modelContent   = <<<EOF
 <?php
 
 namespace $namespace;
