@@ -24,8 +24,9 @@ class MakeRouteCommand extends BaseCommand
     }
 
     /**
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
+     *
      * @return int
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -33,32 +34,24 @@ class MakeRouteCommand extends BaseCommand
         $name = $input->getArgument('name');
         $output->writeln("Make route $name");
 
-        $name = str_replace('\\', '/', $name);
-        if (!($pos = strrpos($name, '/'))) {
-            $route_str = Util::guessPath(base_path(), 'router') ?: 'router';
-            $file = $route_str . DIRECTORY_SEPARATOR . "$name.php";
-        } else {
-            $name_str = substr($name, 0, $pos);
-            if($real_name_str = Util::guessPath(base_path(), $name_str)) {
-                $name_str = $real_name_str;
-            } else if ($real_section_name = Util::guessPath(base_path(), strstr($name_str, '/', true))) {
-                $upper = strtolower($real_section_name[0]) !== $real_section_name[0];
-            } else if ($real_base_route = Util::guessPath(base_path(), 'router')) {
-                $upper = strtolower($real_base_route[0]) !== $real_base_route[0];
-            }
-            $upper = $upper ?? strtolower($name_str[0]) !== $name_str[0];
-            if ($upper && !$real_name_str) {
-                $name_str = preg_replace_callback('/\/([a-z])/', function ($matches) {
-                    return '/' . strtoupper($matches[1]);
-                }, ucfirst($name_str));
-            }
-            $path = "$name_str/" . ($upper ? 'Route' : 'route');
-            $name = substr($name, $pos + 1);
-            $file = base_path() . DIRECTORY_SEPARATOR . $path . DIRECTORY_SEPARATOR . "$name.php";
+        $name      = str_replace('\\', '/', $name);
+        $route_str = app_path() . '/../router';
+
+        $items = explode('/', $name);
+        $name  = '';
+        $end   = end($items);
+        $path  = '';
+        foreach ($items as $item) {
+            if ($item !== $end) $path = $item . '\\';
+            $name .= $item . '/';
         }
+        $name = rtrim($name, '/');
+        $path = rtrim($path, '\\');
+
+        $file = $route_str . DIRECTORY_SEPARATOR . $name . '.php';
 
         if (is_file($file)) {
-            $helper = $this->getHelper('question');
+            $helper   = $this->getHelper('question');
             $question = new ConfirmationQuestion("$file already exists. Do you want to override it? (yes/no)", false);
             if (!$helper->ask($input, $output, $question)) {
                 return self::SUCCESS;
@@ -72,6 +65,7 @@ class MakeRouteCommand extends BaseCommand
 
     /**
      * @param $file
+     *
      * @return void
      */
     protected function createRoute($file): void
