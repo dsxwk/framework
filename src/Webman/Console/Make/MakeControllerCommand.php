@@ -6,6 +6,7 @@ namespace Dsxwk\Framework\Webman\Console\Make;
 
 use Dsxwk\Framework\Webman\Console\BaseCommand;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
@@ -24,8 +25,9 @@ class MakeControllerCommand extends BaseCommand
     }
 
     /**
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
+     *
      * @return int
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -38,42 +40,41 @@ class MakeControllerCommand extends BaseCommand
             $name .= $suffix;
         }
 
-        $name = str_replace('\\', '/', $name);
-        if (!($pos = strrpos($name, '/'))) {
-            $name = ucfirst($name);
-            $controller_str = Util::guessPath(app_path(), 'controller') ?: 'controller';
-            $file = app_path() . DIRECTORY_SEPARATOR . $controller_str . DIRECTORY_SEPARATOR . "$name.php";
-            $namespace = $controller_str === 'Controller' ? 'App\Controller' : 'app\controller';
+        $name           = str_replace('\\', '/', $name);
+        $controller_str = Util::guessPath(app_path(), 'controller');
+
+        $items = explode('/', $name);
+        $name  = '';
+        $end   = end($items);
+        $path  = '';
+        foreach ($items as $item) {
+            if ($item === $end) {
+                $item = ucfirst($item);
+            } else {
+                $path = $item . '\\';
+            }
+            $name .= $item . '/';
+        }
+        $name = rtrim($name, '/');
+        $path = rtrim($path, '\\');
+
+        $file  = app_path() . DIRECTORY_SEPARATOR . $controller_str . DIRECTORY_SEPARATOR . "$name.php";
+        $upper = $controller_str === 'Controller';
+        if (empty($path)) {
+            $namespace = $upper ? 'App\Controller' : 'app\controller';
         } else {
-            $name_str = substr($name, 0, $pos);
-            if($real_name_str = Util::guessPath(app_path(), $name_str)) {
-                $name_str = $real_name_str;
-            } else if ($real_section_name = Util::guessPath(app_path(), strstr($name_str, '/', true))) {
-                $upper = strtolower($real_section_name[0]) !== $real_section_name[0];
-            } else if ($real_base_controller = Util::guessPath(app_path(), 'controller')) {
-                $upper = strtolower($real_base_controller[0]) !== $real_base_controller[0];
-            }
-            $upper = $upper ?? strtolower($name_str[0]) !== $name_str[0];
-            if ($upper && !$real_name_str) {
-                $name_str = preg_replace_callback('/\/([a-z])/', function ($matches) {
-                    return '/' . strtoupper($matches[1]);
-                }, ucfirst($name_str));
-            }
-            $path = "$name_str/" . ($upper ? 'Controller' : 'controller');
-            $name = ucfirst(substr($name, $pos + 1));
-            $file = app_path() . DIRECTORY_SEPARATOR . $path . DIRECTORY_SEPARATOR . "$name.php";
-            $namespace = str_replace('/', '\\', ($upper ? 'App/' : 'app/') . $path);
+            $namespace = $upper ? 'App\Controller' . '\\' . $path : 'app\controller' . '\\' . $path;
         }
 
         if (is_file($file)) {
-            $helper = $this->getHelper('question');
+            $helper   = $this->getHelper('question');
             $question = new ConfirmationQuestion("$file already exists. Do you want to override it? (yes/no)", false);
             if (!$helper->ask($input, $output, $question)) {
                 return Command::SUCCESS;
             }
         }
 
-        $this->createController($name, $namespace, $file);
+        $this->createController(ucfirst($end), $namespace, $file);
 
         return self::SUCCESS;
     }
@@ -82,6 +83,7 @@ class MakeControllerCommand extends BaseCommand
      * @param $name
      * @param $namespace
      * @param $file
+     *
      * @return void
      */
     protected function createController($name, $namespace, $file): void
