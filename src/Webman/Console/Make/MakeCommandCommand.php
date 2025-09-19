@@ -25,8 +25,9 @@ class MakeCommandCommand extends BaseCommand
     }
 
     /**
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
+     *
      * @return int
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -34,38 +35,54 @@ class MakeCommandCommand extends BaseCommand
         $command = $name = trim($input->getArgument('name'));
         $output->writeln("Make command $name");
 
-        // make:command 不支持子目录
-        $name = str_replace(['\\', '/'], '', $name);
-        if (!$command_str = Util::guessPath(app_path(), 'command')) {
-            $command_str = Util::guessPath(app_path(), 'controller') === 'Controller' ? 'Command' : 'command';
-        }
-        $items= explode(':', $name);
-        $name='';
+        $name        = str_replace('\\', '/', $name);
+        $command_str = Util::guessPath(app_path(), 'command');
+
+        $items = explode('/', $name);
+        $name  = '';
+        $end   = end($items);
+        $path  = '';
         foreach ($items as $item) {
-            $name.=ucfirst($item);
+            if ($item === $end) {
+                $item = ucfirst($item);
+            } else {
+                $path = $item . '\\';
+            }
+            $name .= $item . '/';
         }
-        $file = app_path() . DIRECTORY_SEPARATOR . $command_str . DIRECTORY_SEPARATOR . "$name.php";
+        $name = rtrim($name, '/');
+        $path = rtrim($path, '\\');
+
+        $file  = app_path() . DIRECTORY_SEPARATOR . $command_str . DIRECTORY_SEPARATOR . "$name.php";
         $upper = $command_str === 'Command';
-        $namespace = $upper ? 'App\Command' : 'app\command';
+        if (empty($path)) {
+            $namespace = $upper ? 'App\Command' : 'app\command';
+        } else {
+            $namespace = $upper ? 'App\Command' . '\\' . $path : 'app\command' . '\\' . $path;
+        }
 
         if (is_file($file)) {
-            $helper = $this->getHelper('question');
+            $helper   = $this->getHelper('question');
             $question = new ConfirmationQuestion("$file already exists. Do you want to override it? (yes/no)", false);
             if (!$helper->ask($input, $output, $question)) {
                 return Command::SUCCESS;
             }
         }
 
-        $this->createCommand($name, $namespace, $file, $command);
+        $this->createCommand(ucfirst($end), $namespace, $file, $end);
 
         return self::SUCCESS;
     }
 
     protected function getClassName($name): string
     {
-        return preg_replace_callback('/:([a-zA-Z])/', function ($matches) {
-            return strtoupper($matches[1]);
-        }, ucfirst($name)) . 'Command';
+        return preg_replace_callback(
+                   '/:([a-zA-Z])/',
+                   function ($matches) {
+                       return strtoupper($matches[1]);
+                   },
+                   ucfirst($name)
+               ) . 'Command';
     }
 
     /**
@@ -82,7 +99,7 @@ class MakeCommandCommand extends BaseCommand
         if (!is_dir($path)) {
             mkdir($path, 0777, true);
         }
-        $desc = str_replace(':', ' ', $command);
+        $desc           = str_replace(':', ' ', $command);
         $commandContent = <<<EOF
 <?php
 
