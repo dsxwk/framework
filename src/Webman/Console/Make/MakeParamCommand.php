@@ -33,7 +33,7 @@ class MakeParamCommand extends BaseCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $name = $input->getArgument('name');
+        $name  = $input->getArgument('name');
         $camel = $input->getOption('camel');
         $output->writeln("Make param $name");
         $suffix = config('app.param_suffix', '');
@@ -42,38 +42,33 @@ class MakeParamCommand extends BaseCommand
             $name .= $suffix;
         }
 
-        $name = str_replace('\\', '/', $name);
-        if (!($pos = strrpos($name, '/'))) {
-            $name      = ucfirst($name);
-            $param_str = Util::guessPath(app_path(), 'param') ?: 'param';
-            $file      = app_path() . DIRECTORY_SEPARATOR . $param_str . DIRECTORY_SEPARATOR . "$name.php";
-            $namespace = $param_str === 'Param' ? 'App\Param' : 'app\param';
+        $name      = str_replace('\\', '/', $name);
+        $param_str = Util::guessPath(app_path(), 'param');
+
+        $items = explode('/', $name);
+        $name  = '';
+        $end   = end($items);
+        $path  = '';
+        foreach ($items as $item) {
+            if ($item === $end) {
+                $item = ucfirst($item);
+            } else {
+                $path = $item . '\\';
+            }
+            $name .= $item . '/';
+        }
+        $name = rtrim($name, '/');
+        $path = rtrim($path, '\\');
+
+        $file  = app_path() . DIRECTORY_SEPARATOR . $param_str . DIRECTORY_SEPARATOR . $name . '.php';
+        $upper = $param_str === 'Param';
+        if (empty($path)) {
+            $namespace = $upper ? 'App\Param' : 'app\param';
         } else {
-            $name_str = substr($name, 0, $pos);
-            if ($real_name_str = Util::guessPath(app_path(), $name_str)) {
-                $name_str = $real_name_str;
-            } else if ($real_section_name = Util::guessPath(app_path(), strstr($name_str, '/', true))) {
-                $upper = strtolower($real_section_name[0]) !== $real_section_name[0];
-            } else if ($real_base_param = Util::guessPath(app_path(), 'param')) {
-                $upper = strtolower($real_base_param[0]) !== $real_base_param[0];
-            }
-            $upper = $upper ?? strtolower($name_str[0]) !== $name_str[0];
-            if ($upper && !$real_name_str) {
-                $name_str = preg_replace_callback(
-                    '/\/([a-z])/',
-                    function ($matches) {
-                        return '/' . strtoupper($matches[1]);
-                    },
-                    ucfirst($name_str)
-                );
-            }
-            $path      = "$name_str/" . ($upper ? 'Param' : 'param');
-            $name      = ucfirst(substr($name, $pos + 1));
-            $file      = app_path() . DIRECTORY_SEPARATOR . $path . DIRECTORY_SEPARATOR . "$name.php";
-            $namespace = str_replace('/', '\\', ($upper ? 'App/' : 'app/') . $path);
+            $namespace = $upper ? 'App\Param' . '\\' . $path : 'app\param' . '\\' . $path;
         }
 
-        $table      = str_replace('_param', '', Util::classToName($name));
+        $table      = lcfirst(str_replace('Param', '', $end));
         $database   = config(sprintf('database.connections.%s.database', config('database.default')));
         $properties = '';
         $format     = '    ';
@@ -82,7 +77,7 @@ class MakeParamCommand extends BaseCommand
             "select COLUMN_NAME,DATA_TYPE,COLUMN_KEY,COLUMN_COMMENT from INFORMATION_SCHEMA.COLUMNS where table_name = '$table' and table_schema = '$database' ORDER BY ordinal_position"
         ) as $item) {
             if ($item->COLUMN_KEY !== 'PRI') {
-                $type       = $this->getType($item->DATA_TYPE) === 'integer' ? 'int' : $this->getType($item->DATA_TYPE);
+                $type = $this->getType($item->DATA_TYPE) === 'integer' ? 'int' : $this->getType($item->DATA_TYPE);
                 // 是否转换成驼峰参数
                 if ($camel) {
                     $item->COLUMN_NAME = lcfirst(toCamelCase($item->COLUMN_NAME));
@@ -99,7 +94,7 @@ class MakeParamCommand extends BaseCommand
             }
         }
 
-        $this->createParam($name, $namespace, rtrim($properties, "\n"), $file);
+        $this->createParam(ucfirst($end), $namespace, rtrim($properties, "\n"), $file);
 
         return self::SUCCESS;
     }
