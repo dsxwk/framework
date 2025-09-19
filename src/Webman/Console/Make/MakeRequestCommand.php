@@ -39,35 +39,30 @@ class MakeRequestCommand extends BaseCommand
             $name .= $suffix;
         }
 
-        $name = str_replace('\\', '/', $name);
-        if (!($pos = strrpos($name, '/'))) {
-            $name        = ucfirst($name);
-            $request_str = Util::guessPath(app_path(), 'request') ?: 'request';
-            $file        = app_path() . DIRECTORY_SEPARATOR . $request_str . DIRECTORY_SEPARATOR . "$name.php";
-            $namespace   = $request_str === 'Request' ? 'App\Request' : 'app\request';
+        $name        = str_replace('\\', '/', $name);
+        $request_str = Util::guessPath(app_path(), 'request');
+
+        $items = explode('/', $name);
+        $name  = '';
+        $end   = end($items);
+        $path  = '';
+        foreach ($items as $item) {
+            if ($item === $end) {
+                $item = ucfirst($item);
+            } else {
+                $path = $item . '\\';
+            }
+            $name .= $item . '/';
+        }
+        $name = rtrim($name, '/');
+        $path = rtrim($path, '\\');
+
+        $file  = app_path() . DIRECTORY_SEPARATOR . $request_str . DIRECTORY_SEPARATOR . $name . '.php';
+        $upper = $request_str === 'Request';
+        if (empty($path)) {
+            $namespace = $upper ? 'App\Request' : 'app\request';
         } else {
-            $name_str = substr($name, 0, $pos);
-            if ($real_name_str = Util::guessPath(app_path(), $name_str)) {
-                $name_str = $real_name_str;
-            } else if ($real_section_name = Util::guessPath(app_path(), strstr($name_str, '/', true))) {
-                $upper = strtolower($real_section_name[0]) !== $real_section_name[0];
-            } else if ($real_base_request = Util::guessPath(app_path(), 'request')) {
-                $upper = strtolower($real_base_request[0]) !== $real_base_request[0];
-            }
-            $upper = $upper ?? strtolower($name_str[0]) !== $name_str[0];
-            if ($upper && !$real_name_str) {
-                $name_str = preg_replace_callback(
-                    '/\/([a-z])/',
-                    function ($matches) {
-                        return '/' . strtoupper($matches[1]);
-                    },
-                    ucfirst($name_str)
-                );
-            }
-            $path      = "$name_str/" . ($upper ? 'Request' : 'request');
-            $name      = ucfirst(substr($name, $pos + 1));
-            $file      = app_path() . DIRECTORY_SEPARATOR . $path . DIRECTORY_SEPARATOR . "$name.php";
-            $namespace = str_replace('/', '\\', ($upper ? 'App/' : 'app/') . $path);
+            $namespace = $upper ? 'App\Request' . '\\' . $path : 'app\request' . '\\' . $path;
         }
 
         if (is_file($file)) {
@@ -78,7 +73,7 @@ class MakeRequestCommand extends BaseCommand
             }
         }
 
-        $this->createRequest($name, $namespace, $file);
+        $this->createRequest(ucfirst($end), $namespace, $file);
 
         return self::SUCCESS;
     }
