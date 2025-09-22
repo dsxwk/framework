@@ -28,5 +28,12 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^10.5"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Dsxwk\\Framework\\Laravel\\Provider\\BuilderProvider"
+            ]
+        }
     }
 }
