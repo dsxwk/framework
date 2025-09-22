@@ -37,14 +37,14 @@ class Db extends Capsule
      */
     public static function init(): void
     {
-        $capsule = new Capsule;
-        $capsule->addConnection(config('database.connections.' . config('database.default', 'mysql')) ?? []);
-        $capsule->setEventDispatcher(new Dispatcher(new Container()));
-        $capsule->setAsGlobal();
-        $capsule->bootEloquent();
+        $_this = new self();
+        $_this->addConnection(config('database.connections.' . config('database.default', 'mysql')) ?? []);
+        $_this->setEventDispatcher(new Dispatcher(new Container()));
+        $_this->setAsGlobal();
+        $_this->bootEloquent();
 
         // 监听 SQL 执行事件
-        $capsule->getEventDispatcher()->listen(
+        $_this->getEventDispatcher()->listen(
             QueryExecuted::class,
             function (QueryExecuted $query) {
                 $sql      = $query->sql;
