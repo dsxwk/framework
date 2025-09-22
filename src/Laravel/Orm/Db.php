@@ -28,7 +28,7 @@ use Closure;
  * @method static void commit()
  * @method static Expression raw($value)
  */
-class Db
+class Db extends Capsule
 {
     /**
      * 初始化
