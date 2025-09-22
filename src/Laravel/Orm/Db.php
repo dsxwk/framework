@@ -5,12 +5,29 @@ declare(strict_types=1);
 namespace Dsxwk\Framework\Laravel\Orm;
 
 use Dsxwk\Framework\QueryRecord\RecordHandle;
+use Illuminate\Database\Query\Expression;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Container\Container;
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use DateTime;
+use Closure;
 
+/**
+ * Class Db
+ *
+ * @package support
+ * @method static array select(string $query, $bindings = [], $useReadPdo = true)
+ * @method static int insert(string $query, $bindings = [])
+ * @method static int update(string $query, $bindings = [])
+ * @method static int delete(string $query, $bindings = [])
+ * @method static bool statement(string $query, $bindings = [])
+ * @method static mixed transaction(Closure $callback, $attempts = 1)
+ * @method static void beginTransaction()
+ * @method static void rollBack($toLevel = null)
+ * @method static void commit()
+ * @method static Expression raw($value)
+ */
 class Db
 {
     /**
