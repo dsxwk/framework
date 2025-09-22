@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Dsxwk\Framework\Laravel\Orm;
 
+use Dsxwk\Framework\Laravel\Param\PageDataParam;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
@@ -27,23 +28,21 @@ class QueryBuilder extends Builder
      *
      * @param array $columns
      *
-     * @return array
+     * @return PageDataParam
      */
-    public function pageData(array $columns = ['*']): array
+    public function pageData(array $columns = ['*']): PageDataParam
     {
         $page     = (int)request()->input('page', 1);
         $pageSize = (int)request()->input('pageSize', 10);
-        $total    = $this->count();
-        $list     = $this->forPage($page, $pageSize)
-            ->get($columns)
-            ->toArray();
 
-        return [
-            'list'     => $list,
-            'total'    => $total,
-            'page'     => $page,
-            'pageSize' => $pageSize,
-        ];
+        return new PageDataParam(
+            [
+                'page'     => $page,
+                'pageSize' => $pageSize,
+                'total'    => $this->count(),
+                'list'     => $this->forPage($page, $pageSize)->get($columns)->toArray()
+            ]
+        );
     }
 
     /**
@@ -53,7 +52,7 @@ class QueryBuilder extends Builder
      *
      * @return Model
      */
-    public function create(array $attributes = [])
+    public function create(array $attributes = []): Model
     {
         if ($this->isCamel()) $attributes = convertKeysToSnake($attributes);
 
