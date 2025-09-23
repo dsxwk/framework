@@ -5,49 +5,22 @@ declare(strict_types=1);
 use Illuminate\Support\Str;
 
 // 公共函数
-if (!function_exists('convertKeysToCamel')) {
+if (!function_exists('keysToCamelOrSnake')) {
     /**
-     * 递归将数组键名转换为驼峰命名
+     * 递归将数组键名转换为驼峰命名或者下划线命名
      *
      * @param array $data
+     * @param bool  $toSnake
      *
      * @return array
      */
-    function convertKeysToCamel(array $data): array
-    {
-        $result = [];
-
-        foreach ($data as $key => $value) {
-            $newKey = is_string($key) ? Str::camel($key) : $key;
-            if (is_array($value)) {
-                $result[$newKey] = convertKeysToCamel($value);
-            } else {
-                $result[$newKey] = $value;
-            }
-        }
-
-        return $result;
-    }
-}
-
-if (!function_exists('convertKeysToSnake')) {
-    /**
-     * 递归将数组键名转换为下划线命名
-     *
-     * @param array $data
-     *
-     * @return array
-     */
-    function convertKeysToSnake(array $data): array
+    function keysToCamelOrSnake(array $data, bool $toSnake = true): array
     {
         $result = [];
         foreach ($data as $key => $value) {
-            $newKey = is_string($key) ? Str::snake($key) : $key;
-            if (is_array($value)) {
-                $result[$newKey] = convertKeysToSnake($value);
-            } else {
-                $result[$newKey] = $value;
-            }
+            $newKey = is_string($key) ? ($toSnake ? Str::snake($key) : Str::camel($key)) : $key;
+            if (is_array($value)) $result[$newKey] = keysToCamelOrSnake($value, $toSnake);
+            else $result[$newKey] = $value;
         }
 
         return $result;

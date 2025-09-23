@@ -49,9 +49,9 @@ if (PHP_VERSION_ID >= 80200) {
         {
             $data = get_object_vars($this);
             if ($isCamel) {
-                $data = convertKeysToCamel($data);
+                $data = keysToCamelOrSnake($data, false);
             } else {
-                $data = convertKeysToSnake($data);
+                $data = keysToCamelOrSnake($data);
             }
 
             return $data;
@@ -101,9 +101,9 @@ if (PHP_VERSION_ID >= 80200) {
         {
             $data = get_object_vars($this);
             if ($isCamel) {
-                $data = convertKeysToCamel($data);
+                $data = keysToCamelOrSnake($data, false);
             } else {
-                $data = convertKeysToSnake($data);
+                $data = keysToCamelOrSnake($data);
             }
 
             return $data;

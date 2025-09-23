@@ -54,7 +54,7 @@ class QueryBuilder extends Builder
      */
     public function create(array $attributes = []): Model
     {
-        if ($this->isCamel()) $attributes = convertKeysToSnake($attributes);
+        if ($this->isCamel()) $attributes = keysToCamelOrSnake($attributes);
 
         return parent::create($attributes);
     }
@@ -68,7 +68,7 @@ class QueryBuilder extends Builder
      */
     public function update(array $values = []): int
     {
-        if ($this->isCamel()) $values = convertKeysToSnake($values);
+        if ($this->isCamel()) $values = keysToCamelOrSnake($values);
 
         return parent::update($values);
     }
@@ -93,7 +93,7 @@ class QueryBuilder extends Builder
                 foreach ($value as $k => $v) {
                     $values[$key][$model::CREATED_AT]                      = $datetime;
                     $values[$key][$model::UPDATED_AT]                      = $datetime;
-                    $values[$key][$this->isCamel() ? toSnakeCase($k) : $k] = $v;
+                    $values[$key][$this->isCamel() ? Str::snake($k) : $k] = $v;
                 }
             }
         }

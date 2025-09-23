@@ -78,7 +78,7 @@ abstract class BaseModel extends Model
             foreach (parent::toArray() as $key => $value) {
                 $newKey = is_string($key) ? Str::camel($key) : $key;
                 if (is_array($value)) {
-                    $result[$newKey] = convertKeysToCamel($value);
+                    $result[$newKey] = keysToCamelOrSnake($value, false);
                 } else {
                     $result[$newKey] = $value;
                 }
