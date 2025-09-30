@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Dsxwk\Framework\Utils\Exception;
 
-use Dsxwk\Framework\Annotations\Enums\interface\ErrCodeInterface;
+use Dsxwk\Framework\Annotation\Enums\interface\ErrCodeInterface;
 use Dsxwk\Framework\Utils\Query\Handle;
 use Dsxwk\Framework\Utils\Trace\Trace;
 use Exception;
